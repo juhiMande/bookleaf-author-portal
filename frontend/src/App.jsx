@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./style.css";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API = import.meta.env.VITE_API_URL;
 
 function App() {
 
@@ -17,7 +17,7 @@ function App() {
 
   const [tickets, setTickets] = useState([]);
   const [ticketMessages, setTicketMessages] = useState({});
-const [expandedTicketId, setExpandedTicketId] = useState(null);
+  const [expandedTicketId, setExpandedTicketId] = useState(null);
 
   const [subject, setSubject] = useState("");
 
@@ -103,29 +103,29 @@ const [expandedTicketId, setExpandedTicketId] = useState(null);
 
   }, [token, user?.id]);
 
-  
-async function toggleTicketConversation(ticketId) {
-  setError("");
 
-  // Close the conversation if it is already open.
-  if (expandedTicketId === ticketId) {
-    setExpandedTicketId(null);
-    return;
+  async function toggleTicketConversation(ticketId) {
+    setError("");
+
+    // Close the conversation if it is already open.
+    if (expandedTicketId === ticketId) {
+      setExpandedTicketId(null);
+      return;
+    }
+
+    setExpandedTicketId(ticketId);
+
+    try {
+      const result = await request(`/tickets/${ticketId}`);
+
+      setTicketMessages((previous) => ({
+        ...previous,
+        [ticketId]: result.messages || []
+      }));
+    } catch (err) {
+      setError(err.message);
+    }
   }
-
-  setExpandedTicketId(ticketId);
-
-  try {
-    const result = await request(`/tickets/${ticketId}`);
-
-    setTicketMessages((previous) => ({
-      ...previous,
-      [ticketId]: result.messages || []
-    }));
-  } catch (err) {
-    setError(err.message);
-  }
-}
 
 
   async function submitTicket(e) {
@@ -460,7 +460,7 @@ async function toggleTicketConversation(ticketId) {
 
           </p>
 
-         <div className="admin-filters">
+          <div className="admin-filters">
 
             <label>
 
@@ -810,153 +810,152 @@ async function toggleTicketConversation(ticketId) {
 
     </section>
 
-    
-<section className="two-col">
-  <section className="panel">
-    <h2>Submit a support query</h2>
-    <p className="muted">
-      Tell our team what you need help with.
-    </p>
 
-    <form className="stack" onSubmit={submitTicket}>
-      <label>
-        Book
-        <select
-          value={bookId}
-          onChange={(e) => setBookId(e.target.value)}
-        >
-          <option value="">General / Account Level</option>
-          {books.map((b) => (
-            <option value={b.book_id} key={b.book_id}>
-              {b.title}
-            </option>
-          ))}
-        </select>
-      </label>
+    <section className="two-col">
+      <section className="panel">
+        <h2>Submit a support query</h2>
+        <p className="muted">
+          Tell our team what you need help with.
+        </p>
 
-      <label>
-        Subject
-        <input
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-          minLength="3"
-          maxLength="160"
-          required
-          placeholder="Briefly describe your issue"
-        />
-      </label>
-
-      <label>
-        Description
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          minLength="10"
-          maxLength="10000"
-          rows="5"
-          required
-          placeholder="Share the details so we can help you..."
-        />
-      </label>
-
-      <p className="hint">
-        File attachment is not enabled in this starter version.
-      </p>
-
-      <button className="primary" type="submit">
-        Submit ticket
-      </button>
-    </form>
-  </section>
-
-  <section className="panel">
-    <h2>My tickets</h2>
-    <p className="muted">
-      View ticket status and replies from the support team.
-    </p>
-
-    {tickets.length > 0 ? (
-      <div className="ticket-list">
-        {tickets.map((t) => (
-          <article className="ticket" key={t.id}>
-            <div className="ticket-title">
-              <strong>#{t.id} · {t.subject}</strong>
-              <span
-                className={`status ${
-                  ["Resolved", "Closed"].includes(t.status)
-                    ? "published"
-                    : "production"
-                }`}
-              >
-                {t.status}
-              </span>
-            </div>
-
-            <p>{t.description}</p>
-
-            <div className="ticket-meta">
-              <span>{t.category}</span>
-              <span>{t.priority} priority</span>
-              <span>
-                {t.created_at
-                  ? new Date(t.created_at).toLocaleDateString()
-                  : ""}
-              </span>
-            </div>
-
-            <button
-              type="button"
-              className="ghost"
-              onClick={() => toggleTicketConversation(t.id)}
+        <form className="stack" onSubmit={submitTicket}>
+          <label>
+            Book
+            <select
+              value={bookId}
+              onChange={(e) => setBookId(e.target.value)}
             >
-              {expandedTicketId === t.id
-                ? "Hide conversation"
-                : "View conversation"}
-            </button>
+              <option value="">General / Account Level</option>
+              {books.map((b) => (
+                <option value={b.book_id} key={b.book_id}>
+                  {b.title}
+                </option>
+              ))}
+            </select>
+          </label>
 
-            {expandedTicketId === t.id && (
-              <div className="conversation">
-                <h3>Conversation</h3>
+          <label>
+            Subject
+            <input
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              minLength="3"
+              maxLength="160"
+              required
+              placeholder="Briefly describe your issue"
+            />
+          </label>
 
-                {(ticketMessages[t.id] || []).length > 0 ? (
-                  ticketMessages[t.id].map((message) => (
-                    <article className="ticket" key={message.id}>
-                      <strong>
-                        {message.sender_role === "admin"
-                          ? "BookLeaf Support"
-                          : "You"}
-                      </strong>
+          <label>
+            Description
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              minLength="10"
+              maxLength="10000"
+              rows="5"
+              required
+              placeholder="Share the details so we can help you..."
+            />
+          </label>
 
-                      <p>{message.body}</p>
+          <p className="hint">
+            File attachment is not enabled in this starter version.
+          </p>
 
-                      <small className="muted">
-                        {message.created_at
-                          ? new Date(
-                              message.created_at
-                            ).toLocaleString()
-                          : ""}
-                      </small>
-                    </article>
-                  ))
-                ) : (
-                  <p className="empty">
-                    No replies yet.
-                  </p>
+          <button className="primary" type="submit">
+            Submit ticket
+          </button>
+        </form>
+      </section>
+
+      <section className="panel">
+        <h2>My tickets</h2>
+        <p className="muted">
+          View ticket status and replies from the support team.
+        </p>
+
+        {tickets.length > 0 ? (
+          <div className="ticket-list">
+            {tickets.map((t) => (
+              <article className="ticket" key={t.id}>
+                <div className="ticket-title">
+                  <strong>#{t.id} · {t.subject}</strong>
+                  <span
+                    className={`status ${["Resolved", "Closed"].includes(t.status)
+                        ? "published"
+                        : "production"
+                      }`}
+                  >
+                    {t.status}
+                  </span>
+                </div>
+
+                <p>{t.description}</p>
+
+                <div className="ticket-meta">
+                  <span>{t.category}</span>
+                  <span>{t.priority} priority</span>
+                  <span>
+                    {t.created_at
+                      ? new Date(t.created_at).toLocaleDateString()
+                      : ""}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  className="ghost"
+                  onClick={() => toggleTicketConversation(t.id)}
+                >
+                  {expandedTicketId === t.id
+                    ? "Hide conversation"
+                    : "View conversation"}
+                </button>
+
+                {expandedTicketId === t.id && (
+                  <div className="conversation">
+                    <h3>Conversation</h3>
+
+                    {(ticketMessages[t.id] || []).length > 0 ? (
+                      ticketMessages[t.id].map((message) => (
+                        <article className="ticket" key={message.id}>
+                          <strong>
+                            {message.sender_role === "admin"
+                              ? "BookLeaf Support"
+                              : "You"}
+                          </strong>
+
+                          <p>{message.body}</p>
+
+                          <small className="muted">
+                            {message.created_at
+                              ? new Date(
+                                message.created_at
+                              ).toLocaleString()
+                              : ""}
+                          </small>
+                        </article>
+                      ))
+                    ) : (
+                      <p className="empty">
+                        No replies yet.
+                      </p>
+                    )}
+                  </div>
                 )}
-              </div>
-            )}
-          </article>
-        ))}
-      </div>
-    ) : (
-      <p className="empty">No support tickets yet.</p>
-    )}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="empty">No support tickets yet.</p>
+        )}
 
-    <p className="muted">
-      Updates refresh automatically every 8 seconds.
-    </p>
-  </section>
-</section>
+        <p className="muted">
+          Updates refresh automatically every 8 seconds.
+        </p>
+      </section>
+    </section>
 
 
     <footer>BookLeaf Publishing · Author Support & Communication Portal</footer>
