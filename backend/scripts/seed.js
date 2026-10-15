@@ -20,9 +20,7 @@ async function seed() {
     const data = JSON.parse(fs.readFileSync(dataPath, "utf8"));
 
     // 1. Seed admin
-    const adminEmail = (
-      process.env.ADMIN_EMAIL || "admin@bookleaf.com"
-    ).trim().toLowerCase();
+    const adminEmail = (process.env.ADMIN_EMAIL).trim().toLowerCase();
 
     const adminName = process.env.ADMIN_NAME || "BookLeaf Admin";
     const adminPassword = process.env.ADMIN_PASSWORD || "Admin@123";

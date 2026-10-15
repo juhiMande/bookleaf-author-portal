@@ -27,5 +27,5 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: "Unexpected server error" });
 });
 
-const port = Number(process.env.PORT || 5000);
+const port = Number(5000);
 app.listen(port, () => console.log(`BookLeaf API listening on port ${port}`));

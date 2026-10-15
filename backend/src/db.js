@@ -5,12 +5,15 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const pool = mysql.createPool({
-  host: "localhost",
-  port: 3306,
-  user: "root",
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
-  database: "bookleaf_portal",
+  database: process.env.DB_DATABASE,
   waitForConnections: true,
   connectionLimit: 10,
-  decimalNumbers: true
+  decimalNumbers: true,
+  ssl: {
+    minVersion: 'TLSv1.2'
+  }
 });
